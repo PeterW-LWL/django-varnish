@@ -24,7 +24,7 @@ def management(request):
         manager.run(*str(kwargs.pop('command')).split(), **kwargs)
         return HttpResponseRedirect(request.path)
 
-    stats = subprocess.Popen("echo Hello World", shell=True, stdout=subprocess.PIPE)\
+    stats = subprocess.Popen('/usr/bin/varnishstat -j', shell=True, stdout=subprocess.PIPE)\
         .stdout.read()
     stats = json.loads(stats)
 
