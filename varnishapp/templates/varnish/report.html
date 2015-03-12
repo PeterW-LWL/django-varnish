@@ -4,20 +4,19 @@
 
 <form><input type="text" name="command"/><input type="submit" value="Run command"/></form>
 
-<table><tr>
-    <td><h1>Server analytics</h1>
-    <blockquote>
+<h1>Server analytics</h1>
+
+<table>
     {% if stats %}
         {% for key, report in stats %}
-            <h2>{{ key }} </h2>
-            <ul>
-                <li>{{ report.description }} {{ report.value|intcomma }}</li>
-            </ul>   
+        <tr>
+            <td><strong>{{ report.description }}</strong></td>
+            <td>{{ report.description }} {{ report.value|intcomma }}</td> 
+        </tr>  
         {% endfor %}
-            </blockquote> </td>
     {% else %}
         <h2>Stats Error</h2>
         {{ errors.stats }}
     {% endif %}
-</tr></table>
+</table>
 {% endblock %}
