@@ -11,7 +11,7 @@
         {% for key, report in stats %}
         <tr>
             <td><strong>{{ report.description }}</strong></td>
-            <td>{{ report.description }} {{ report.value|intcomma }}</td> 
+            <td>{{ report.value|intcomma }}</td> 
         </tr>  
         {% endfor %}
     {% else %}
