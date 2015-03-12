@@ -28,4 +28,4 @@ def management(request):
         .stdout.read()
     stats = json.loads(stats)
 
-    return render(request, 'varnish/report.html', {'stats': stats})
+    return render(request, 'varnish/report.html', {'stats': stats.iteritems()})
