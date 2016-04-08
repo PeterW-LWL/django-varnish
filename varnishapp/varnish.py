@@ -19,13 +19,6 @@ from threading import Thread
 from httplib import HTTPConnection
 from urlparse import urlparse
 from hashlib import sha256
-import logging
-
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s %(message)s',
-)
 
 
 def http_purge_url(url):
@@ -39,8 +32,6 @@ def http_purge_url(url):
     connection.request('PURGE', '%s?%s' % (url.path or '/', url.query), '',
                        {'Host': url.hostname})
     response = connection.getresponse()
-    if response.status != 200:
-        logging.error('Purge failed with status: %s' % response.status)
     return response
 
 
@@ -52,8 +43,6 @@ class VarnishHandler(Telnet):
         (status, length), content = self._read()
         if status == 107 and secret is not None:
             self.auth(secret, content)
-        elif status != 200:
-            logging.error('Connecting failed with status: %i' % status)
 
     def _read(self):
         (status, length), content = map(int, self.read_until('\n').split()), ''
@@ -66,7 +55,6 @@ class VarnishHandler(Telnet):
         Run a command on the Varnish backend and return the result
         return value is a tuple of ((status, length), content)
         """
-        logging.debug('SENT: %s: %s' % (self.host, command))
         self.write('%s\n' % command)
         while 1:
             buffer = self.read_until('\n').strip()
@@ -79,7 +67,6 @@ class VarnishHandler(Telnet):
                     text=self.read_until('\n').strip(), command=command)
         while len(content) < length:
             content += self.read_until('\n')
-        logging.debug('RECV: %s: %dB %s' % (status, length, content[:30]))
         self.read_eager()
         return (status, length), content
 
@@ -318,8 +305,6 @@ def run(addr, *commands, **kwargs):
 
 class VarnishManager(object):
     def __init__(self, servers, secret=None):
-        if not len(servers):
-            logging.warn('No servers found, please declare some')
         self.servers = servers
         self.secret = secret
 
