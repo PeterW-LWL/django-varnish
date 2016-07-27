@@ -16,9 +16,17 @@ https://www.varnish-cache.org/docs/3.0/tutorial/purging.html
 """
 from telnetlib import Telnet
 from threading import Thread
-from httplib import HTTPConnection
-from urlparse import urlparse
 from hashlib import sha256
+
+try:
+    from httplib import HTTPConnection
+except ImportError:
+    from http.client import HTTPConnection
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 
 def http_purge_url(url):
