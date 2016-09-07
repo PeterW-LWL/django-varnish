@@ -47,7 +47,7 @@ class VarnishHandler(Telnet):
     def __init__(self, host_port_timeout, secret=None, **kwargs):
         if isinstance(host_port_timeout, basestring):
             host_port_timeout = host_port_timeout.split(':')
-        Telnet.__init__(self, *host_port_timeout)
+        super(VarnishHandler, self).__init__(*host_port_timeout)
         (status, length), content = self._read()
         if status == 107 and secret is not None:
             self.auth(secret, content)
