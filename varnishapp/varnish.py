@@ -46,7 +46,7 @@ def http_purge_url(url):
 class VarnishHandler(Telnet):
     def __init__(self, host_port_timeout, secret=None, **kwargs):
         self.sock = None
-        if isinstance(host_port_timeout, basestring):
+        if isinstance(host_port_timeout, str):
             host_port_timeout = host_port_timeout.split(':')
         Telnet.__init__(self, *host_port_timeout)
         (status, length), content = self._read()

@@ -1,0 +1,7 @@
+*.log
+*.pot
+*.pyc
+.idea
+build
+django_ot.egg-info
+*.egg
