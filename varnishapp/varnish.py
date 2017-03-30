@@ -14,6 +14,7 @@ configuration details
 https://www.varnish-cache.org/docs/3.0/tutorial/purging.html
 
 """
+import sys
 from telnetlib import Telnet
 from threading import Thread
 from hashlib import sha256
@@ -28,6 +29,7 @@ try:
 except ImportError:
     from urlparse import urlparse
 
+PYTHON3=True if sys.version_info[0] == 3 else False
 
 def http_purge_url(url):
     """
@@ -54,7 +56,10 @@ class VarnishHandler(Telnet):
             self.auth(secret, content)
 
     def _read(self):
-        (status, length), content = map(int, self.read_until('\n').split()), ''
+        if PYTHON3:
+            (status, length), content = list(map(int, self.read_until(b'\n').split())), b''
+        else:
+            (status, length), content = list(map(int, self.read_until('\n').split())), ''
         while len(content) < length:
             content += self.read_some()
         return (status, length), content[:-1]
@@ -64,18 +69,35 @@ class VarnishHandler(Telnet):
         Run a command on the Varnish backend and return the result
         return value is a tuple of ((status, length), content)
         """
-        self.write('%s\n' % command)
+        if PYTHON3:
+            self.write(bytes('%s\n' % command, 'utf8'))
+        else:
+            self.write('%s\n' % command)
         while 1:
-            buffer = self.read_until('\n').strip()
+            if PYTHON3:
+                buffer = self.read_until(b'\n').strip()
+            else:
+                buffer = self.read_until('\n').strip()
             if len(buffer):
                 break
         status, length = map(int, buffer.split())
-        content = ''
-        assert status == 200, 'Bad response code: {status} {text} ({command})'\
-            .format(status=status,
-                    text=self.read_until('\n').strip(), command=command)
+        if PYTHON3:
+            content = b''
+        else:
+            content = ''
+
+        if status != 200:
+            if PYTHON3:
+                raise VarnishError(status, 'Bad response code: {status} {text} ({command})'.format(status=status, text=self.read_until(b'\n').strip().decode('utf8'), command=command))
+            else:
+                raise VarnishError(status, 'Bad response code: {status} {text} ({command})'.format(status=status, text=self.read_until(b'\n').strip(), command=command))
         while len(content) < length:
-            content += self.read_until('\n')
+            if PYTHON3:
+                content += self.read_until(b'\n')
+            else:
+                content += self.read_until('\n')
+        if PYTHON3:
+            content = content.decode('utf8')
         self.read_eager()
         return (status, length), content
 
@@ -97,9 +119,19 @@ class VarnishHandler(Telnet):
 
     def auth(self, secret, content):
         challenge = content[:32]
-        response = sha256('%s\n%s\n%s\n' % (challenge, secret, challenge))
+        if PYTHON3:
+            challenge_resp = challenge + b'\n' + bytes(secret, 'utf8') + b'\n' + challenge + b'\n'
+        else:
+            challenge_resp = '%s\n%s%s\n' % (challenge, secret, challenge)
+        response = sha256(challenge_resp)
         response_str = 'auth %s' % response.hexdigest()
-        self.fetch(response_str)
+
+        try:
+            self.fetch(response_str)
+        except VarnishError as e:
+            if e.status == 107:
+                raise VarnishSecretInvalidError(107, "Invalid secret")
+            raise e
 
     # Information methods
     def ping(self, timestamp=None):
@@ -335,3 +367,14 @@ class VarnishManager(object):
     def close(self):
         self.run('close', threaded=True)
         self.servers = ()
+
+
+class VarnishError(RuntimeError):
+
+    def __init__(self, status, message, *args, **kwargs):
+        self.status = status
+        self.message = message
+        super(VarnishError, self).__init__(message, *args, **kwargs)
+
+class VarnishSecretInvalidError(VarnishError):
+    pass
