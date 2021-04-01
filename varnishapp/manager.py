@@ -1,6 +1,6 @@
-from django.conf import settings
-
 from atexit import register
+
+from django.conf import settings
 
 from .varnish import VarnishManager
 

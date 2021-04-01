@@ -1,10 +1,11 @@
 import json
 import subprocess
 
-from django.http import HttpResponseRedirect
-from manager import manager
-from django.shortcuts import render
 from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+
+from .manager import manager
 
 
 def get_stats():

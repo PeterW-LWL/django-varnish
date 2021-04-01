@@ -11,4 +11,4 @@ class Command(BaseCommand):
         if args:
             pprint(manager.run(*args))
         else:
-            print manager.help()
+            print(manager.help())

@@ -5,3 +5,5 @@
 build
 django_ot.egg-info
 *.egg
+.venv
+.vscode
