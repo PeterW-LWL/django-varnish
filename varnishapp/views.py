@@ -20,8 +20,12 @@ def get_stats():
 def management(request):
     if not request.user.is_superuser:
         return HttpResponseRedirect('/admin/')
-    if 'command' in request.REQUEST:
-        kwargs = dict(request.REQUEST.items())
+    if 'command' in request.GET:
+        kwargs = dict(request.GET.items())
+        manager.run(*str(kwargs.pop('command')).split(), **kwargs)
+        return HttpResponseRedirect(request.path)
+    if 'command' in request.POST:
+        kwargs = dict(request.POST.items())
         manager.run(*str(kwargs.pop('command')).split(), **kwargs)
         return HttpResponseRedirect(request.path)
 
