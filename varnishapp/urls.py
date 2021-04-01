@@ -1,6 +1,8 @@
-from django.conf.urls import patterns
+from django.conf.urls import re_path
 
-urlpatterns = patterns(
-    'varnishapp.views',
-    (r'', 'management'),
-)
+from . import views
+
+urlpatterns = [
+    re_path(r'^get_stats', views.get_stats, name="get_stats"),
+    re_path(r'^management', views.management, name="management"),
+]
