@@ -345,13 +345,12 @@ class VarnishManager(object):
         threaded = kwargs.pop('threaded', False)
         if 'secret' not in kwargs and self.secret is not None:
             kwargs['secret'] = self.secret
-        for server in self.servers:
-            if threaded:
-                [ThreadedRunner(server, *commands, **kwargs).start()
+        if threaded:
+            [ThreadedRunner(server, *commands, **kwargs).start()
+                for server in self.servers]
+        else:
+            return [run(server, *commands, **kwargs)
                     for server in self.servers]
-            else:
-                return [run(server, *commands, **kwargs)
-                        for server in self.servers]
 
     def help(self, *args):
         return run(self.servers[0], *('help',)+args)[0]
