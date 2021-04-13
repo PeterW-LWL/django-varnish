@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class VanishAppConfig(AppConfig):
+class VanishApp(AppConfig):
     name = 'varnishapp'
 
     # noinspection PyUnresolvedReferences
