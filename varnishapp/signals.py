@@ -16,4 +16,7 @@ def absolute_url_purge_handler(sender, **kwargs):
 
 for model in getattr(settings, 'VARNISH_WATCHED_MODELS', ()):
     logger.info("Setting up `post_save` singal handler for %s", model)
-    post_save.connect(absolute_url_purge_handler, sender=get_model(*model.split('.')))
+    post_save.connect(
+        absolute_url_purge_handler,
+        sender=get_model(*model.split('.'))
+    )
