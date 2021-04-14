@@ -21,7 +21,8 @@ from telnetlib import Telnet
 from threading import Thread
 from urllib.parse import urlparse
 
-PYTHON3=True if sys.version_info[0] == 3 else False
+PYTHON3 = True if sys.version_info[0] == 3 else False
+
 
 def http_purge_url(url):
     """
@@ -112,7 +113,8 @@ class VarnishHandler(Telnet):
     def auth(self, secret, content):
         challenge = content[:32]
         if PYTHON3:
-            challenge_resp = challenge + b'\n' + bytes(secret, 'utf8') + challenge + b'\n'
+            challenge_resp = challenge + b'\n' + bytes(secret, 'utf8')\
+                + challenge + b'\n'
         else:
             challenge_resp = '%s\n%s%s\n' % (challenge, secret, challenge)
         response = sha256(challenge_resp)
@@ -366,6 +368,7 @@ class VarnishError(RuntimeError):
         self.status = status
         self.message = message
         super(VarnishError, self).__init__(message, *args, **kwargs)
+
 
 class VarnishSecretInvalidError(VarnishError):
     pass
