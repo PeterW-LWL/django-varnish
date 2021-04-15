@@ -45,6 +45,7 @@ def create_handler(accessor_method):
         else:
             logger.error("%s has no method %s", instance, accessor_method)
             print("Failed", instance, accessor_method)
+    return inner
 
 
 def absolute_url_purge_handler(sender, **kwargs):
